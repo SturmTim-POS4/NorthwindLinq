@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using NorthwindDB;
 
 namespace NorthwindLinq
 {
   public class Queries
   {
-    //private NorthwindContext db;
+    private NorthwindContext db;
     public Queries()
     {
       InitializeDatabase();
@@ -15,7 +17,7 @@ namespace NorthwindLinq
 
     private void InitializeDatabase()
     {
-      //initialize the variable db here
+      db = new NorthwindContext();
     }
 
     public void CheckAll()
@@ -40,49 +42,79 @@ namespace NorthwindLinq
     #region Q01
     public List<string> First5ProductsWithCategories()
     {
-      return new List<string>();
+      return db.Products
+        .OrderBy(x => x.ProductName)
+        .Take(5)
+        .Select(x => $"{x.ProductName} - {x.Category.CategoryName}")
+        .ToList();
     }
     #endregion
 
     #region Q02
     public List<string> OrderedProductsOfBOTTM()
     {
-      return new List<string>();
+      return db.Orders
+        .Where(x => x.Customer.CustomerId == "BOTTM")
+        .SelectMany(x => x.OrderDetails)
+        .Select(x => x.Product)
+        .Where(x => x.UnitPrice > 30)
+        .Select(x => x.ProductName)
+        .Distinct()
+        .OrderBy(x => x)
+        .ToList();
     }
     #endregion
 
     #region Q03
     public int NrOfEmployeesWhoSoldToCustomersInGivenCity(string city)
     {
-      return -1;
+      return db.Orders
+        .Where(x => x.Customer.City == city)
+        .Select(x => x.Employee.EmployeeId)
+        .Distinct()
+        .Count();
     }
     #endregion
 
     #region Q04
     public List<string> CustomersWithUnshippedOrders()
     {
-      return new List<string>();
+      return db.Orders
+        .Where(x => x.Customer.Country == "Venezuela" || x.Customer.Country == "Argentina")
+        .Where(x => x.ShippedDate == null)
+        .Select(x => $"{x.Customer.CompanyName} - {x.ShipCity}/{x.ShipCountry} - {x.Employee.FirstName} {x.Employee.LastName}")
+        .ToList();
     }
     #endregion
 
     #region Q05
     public int TotalQuantityOfShipper(string shipperCompany)
     {
-      return -1;
+      return db.Orders
+        .Where(x => x.ShipViaNavigation.CompanyName == shipperCompany)
+        .Where(x => x.ShippedDate != null)
+        .SelectMany(x => x.OrderDetails)
+        .Select(x => x.Quantity)
+        .Sum(x => x);
     }
     #endregion
 
     #region Q06
     public double AveragePriceOfSuppliersOfCity(string city)
     {
-      return -1;
+    return (double) db.Products
+      .Where(x => x.Supplier.City == city)
+      .Select(x => x.UnitPrice).Average();
     }
     #endregion
 
     #region Q07
     public List<string> CategoriesWithProductsInStockMoreThan(int totalStock)
     {
-      return new List<string>();
+      return db.Categories.Where(x => x.Products.Select(x => (int) x.UnitsInStock).Sum() > totalStock)
+        .OrderBy(x => x.CategoryName)
+        .Select(x => x.CategoryName)
+        .ToList();
     }
     #endregion
 
