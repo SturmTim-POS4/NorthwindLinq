@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NorthwindWPF"
         mc:Ignorable="d"
+        Loaded="MainWindow_OnLoaded"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+    <StackPanel>
+        <ComboBox Name="OrderBox" Margin="150,20,150,0" SelectionChanged="OrderBox_OnSelectionChanged">
+            <ComboBoxItem></ComboBoxItem>
+        </ComboBox>
+        <ListBox Name="OrderDetailList" Margin="150,20,150,0">
+            
+        </ListBox>
+    </StackPanel>
 </Window>

@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore;
+using NorthwindDB;
 
 namespace NorthwindWPF
 {
@@ -20,9 +11,30 @@ namespace NorthwindWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NorthwindContext db;
+        
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            db = new NorthwindContext();
+            
+            db.Orders.ToList().ForEach(x => OrderBox.Items.Add(new ComboBoxItem().Content = x));
+        }
+
+        private void OrderBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedOrder = (Order) OrderBox.SelectedItem;
+
+            OrderDetailList.ItemsSource = db.OrderDetails
+                .Include(x => x.Product.Supplier)
+                .Include(x => x.Product.Category)
+                .Include(x => x.Order.Employee)
+                .Where(x => x.Order.Equals(selectedOrder))
+                .ToList();
         }
     }
 }

@@ -102,9 +102,9 @@ namespace NorthwindLinq
     #region Q06
     public double AveragePriceOfSuppliersOfCity(string city)
     {
-    return (double) db.Products
+    return db.Products
       .Where(x => x.Supplier.City == city)
-      .Select(x => x.UnitPrice).Average();
+      .Select(x => (double)x.UnitPrice).Average();
     }
     #endregion
 
